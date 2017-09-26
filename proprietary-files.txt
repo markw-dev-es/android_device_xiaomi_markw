@@ -69,6 +69,7 @@ etc/camera/sunny_s5k3l8_f3l8yam_chromatix.xml
 etc/init/cameraserver.rc
 
 # Camera
+bin/mm-qcamera-daemon
 vendor/lib/libChamomilePA.so
 vendor/lib/libchromaflash.so
 vendor/lib/libflash_pmic.so
