@@ -51,8 +51,6 @@ class QCameraMemoryPool;
 
 //OFFSET, SIZE, USAGE, TIMESTAMP, FORMAT
 #define VIDEO_METADATA_NUM_INTS          5
-//Buffer identity
-#define VIDEO_METADATA_NUM_COMMON_INTS   1
 
 enum QCameraMemType {
     QCAMERA_MEM_TYPE_DEFAULT      = 0,
@@ -238,9 +236,8 @@ public:
     int getUsage(){return mUsage;};
     int getFormat(){return mFormat;};
     int convCamtoOMXFormat(cam_format_t format);
-    int closeNativeHandle(const void *data, bool metadata);
-    static int closeNativeHandle(const void *data);
-    native_handle_t *getNativeHandle(uint32_t index, bool metadata = true);
+    native_handle_t *updateNativeHandle(uint32_t index, bool metadata = true);
+    static int closeNativeHandle(const void *data, bool metadata = true);
 private:
     camera_memory_t *mMetadata[MM_CAMERA_MAX_NUM_FRAMES];
     uint8_t mMetaBufCount;
@@ -289,8 +286,7 @@ private:
     bool mBufferStatus[MM_CAMERA_MAX_NUM_FRAMES];
     struct private_handle_t *mPrivateHandle[MM_CAMERA_MAX_NUM_FRAMES];
     preview_stream_ops_t *mWindow;
-    int mWidth, mHeight, mFormat, mStride, mScanline, mUsage;
-    typeof (MetaData_t::refreshrate) mMaxFPS;
+    int mWidth, mHeight, mFormat, mStride, mScanline, mUsage, mMaxFPS;
     camera_request_memory mGetMemory;
     camera_memory_t *mCameraMemory[MM_CAMERA_MAX_NUM_FRAMES];
     int mMinUndequeuedBuffers;
