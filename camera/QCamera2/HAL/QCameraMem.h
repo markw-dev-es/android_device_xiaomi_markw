@@ -59,11 +59,6 @@ enum QCameraMemType {
     QCAMERA_MEM_TYPE_COMPRESSED   = (1 << 2),
 };
 
-typedef enum {
-    STATUS_IDLE,
-    STATUS_SKIPPED
-} BufferStatus;
-
 // Base class for all memory types. Abstract.
 class QCameraMemory {
 
@@ -236,14 +231,10 @@ public:
     int getUsage(){return mUsage;};
     int getFormat(){return mFormat;};
     int convCamtoOMXFormat(cam_format_t format);
-    int closeNativeHandle(const void *data, bool metadata);
-    native_handle_t *updateNativeHandle(uint32_t index, bool metadata = true);
-    static int closeNativeHandle(const void *data);
 private:
     camera_memory_t *mMetadata[MM_CAMERA_MAX_NUM_FRAMES];
     uint8_t mMetaBufCount;
     int mUsage, mFormat;
-    native_handle_t *mNativeHandle[MM_CAMERA_MAX_NUM_FRAMES];
 };
 
 
@@ -279,12 +270,11 @@ public:
     void setMaxFPS(int maxFPS);
     int32_t enqueueBuffer(uint32_t index, nsecs_t timeStamp = 0);
     int32_t dequeueBuffer();
-    inline bool isBufSkipped(uint32_t index){return (mBufferStatus[index] == STATUS_SKIPPED);};
-    void setBufferStatus(uint32_t index, BufferStatus status);
+    inline bool isBufOwnedByCamera(uint32_t index){return mLocalFlag[index] == BUFFER_OWNED;};
+
 private:
     buffer_handle_t *mBufferHandle[MM_CAMERA_MAX_NUM_FRAMES];
     int mLocalFlag[MM_CAMERA_MAX_NUM_FRAMES];
-    bool mBufferStatus[MM_CAMERA_MAX_NUM_FRAMES];
     struct private_handle_t *mPrivateHandle[MM_CAMERA_MAX_NUM_FRAMES];
     preview_stream_ops_t *mWindow;
     int mWidth, mHeight, mFormat, mStride, mScanline, mUsage, mMaxFPS;

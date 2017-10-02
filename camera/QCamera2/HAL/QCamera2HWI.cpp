@@ -757,7 +757,6 @@ void QCamera2HardwareInterface::release_recording_frame(
             struct camera_device *device, const void *opaque)
 {
     ATRACE_CALL();
-    int32_t ret = NO_ERROR;
     QCamera2HardwareInterface *hw =
         reinterpret_cast<QCamera2HardwareInterface *>(device->priv);
     if (!hw) {
@@ -769,22 +768,9 @@ void QCamera2HardwareInterface::release_recording_frame(
         return;
     }
     LOGD("E camera id %d", hw->getCameraId());
-
-    //Close and delete duplicated native handle and FD's.
-    if (hw->mVideoMem != NULL) {
-        ret = hw->mVideoMem->closeNativeHandle(opaque,
-                hw->mStoreMetaDataInFrame > 0);
-        if (ret != NO_ERROR) {
-            LOGE("Invalid video metadata");
-            return;
-        }
-    } else {
-        LOGW("Possible FD leak. Release recording called after stop");
-    }
-
     hw->lockAPI();
     qcamera_api_result_t apiResult;
-    ret = hw->processAPI(QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME, (void *)opaque);
+    int32_t ret = hw->processAPI(QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME, (void *)opaque);
     if (ret == NO_ERROR) {
         hw->waitAPIResult(QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME, &apiResult);
     }
@@ -1642,7 +1628,6 @@ QCamera2HardwareInterface::QCamera2HardwareInterface(uint32_t cameraId)
       mLiveSnapshotThread(0),
       mIntPicThread(0),
       mFlashNeeded(false),
-      mFlashConfigured(false),
       mDeviceRotation(0U),
       mCaptureRotation(0U),
       mJpegExifRotation(0U),
@@ -1676,7 +1661,6 @@ QCamera2HardwareInterface::QCamera2HardwareInterface(uint32_t cameraId)
       mJpegClientHandle(0),
       mJpegHandleOwner(false),
       mMetadataMem(NULL),
-      mVideoMem(NULL),
       mCACDoneReceived(false),
       m_bNeedRestart(false),
       mBootToMonoTimestampOffset(0)
@@ -1983,7 +1967,7 @@ int QCamera2HardwareInterface::openCamera()
         // (hardware composer) to that of camera. Assumption is that this
         // offset won't change during the life cycle of the camera device. In other
         // words, camera device shouldn't be open during CPU suspend.
-        mBootToMonoTimestampOffset = QCameraCommon::getBootToMonoTimeOffset();
+        mBootToMonoTimestampOffset = getBootToMonoTimeOffset();
     }
     LOGH("mBootToMonoTimestampOffset = %lld", mBootToMonoTimestampOffset);
 
@@ -2484,12 +2468,8 @@ uint8_t QCamera2HardwareInterface::getBufNumRequired(cam_stream_type_t stream_ty
             if (bufferCnt > CAMERA_ISP_PING_PONG_BUFFERS )
                 bufferCnt -= CAMERA_ISP_PING_PONG_BUFFERS;
 
-            // Extra ZSL preview frames are not needed for HFR case.
-            // Thumbnail will not be derived from preview for HFR live snapshot case.
-            if ((mParameters.getRecordingHintValue() == true)
-                    && (!mParameters.isHfrMode())) {
+            if (mParameters.getRecordingHintValue() == true)
                 bufferCnt += EXTRA_ZSL_PREVIEW_STREAM_BUF;
-            }
 
             // Add the display minUndequeCount count on top of camera requirement
             bufferCnt += minUndequeCount;
@@ -2849,7 +2829,6 @@ QCameraMemory *QCamera2HardwareInterface::allocateStreamBuf(
             }
             videoMemory->setVideoInfo(usage, fmt);
             mem = videoMemory;
-            mVideoMem = videoMemory;
         }
         break;
     case CAM_STREAM_TYPE_CALLBACK:
@@ -3180,7 +3159,6 @@ QCameraMemory *QCamera2HardwareInterface::allocateStreamUserBuf(
         }
         video_mem->setVideoInfo(usage, fmt);
         mem = static_cast<QCameraMemory *>(video_mem);
-        mVideoMem = video_mem;
     }
     break;
 
@@ -3619,7 +3597,6 @@ int QCamera2HardwareInterface::startRecording()
     int32_t rc = NO_ERROR;
 
     LOGI("E");
-    mVideoMem = NULL;
     //link meta stream with video channel if low power mode.
     if (isLowPowerMode()) {
         // Find and try to link a metadata stream from preview channel
@@ -3716,10 +3693,9 @@ int QCamera2HardwareInterface::stopRecording()
     }
     int rc = stopChannel(QCAMERA_CH_TYPE_VIDEO);
 
-    m_cbNotifier.flushVideoNotifications();
     // Disable power hint for video encoding
     m_perfLock.powerHint(POWER_HINT_VIDEO_ENCODE, false);
-    mVideoMem = NULL;
+
     LOGI("X rc = %d", rc);
     return rc;
 }
@@ -3740,9 +3716,8 @@ int QCamera2HardwareInterface::releaseRecordingFrame(const void * opaque)
 {
     int32_t rc = UNKNOWN_ERROR;
     QCameraVideoChannel *pChannel =
-            (QCameraVideoChannel *)m_channels[QCAMERA_CH_TYPE_VIDEO];
+        (QCameraVideoChannel *)m_channels[QCAMERA_CH_TYPE_VIDEO];
     LOGD("opaque data = %p",opaque);
-
     if(pChannel != NULL) {
         rc = pChannel->releaseFrame(opaque, mStoreMetaDataInFrame > 0);
     }
@@ -3926,7 +3901,7 @@ int32_t QCamera2HardwareInterface::unconfigureAdvancedCapture()
             mHDRBracketingEnabled = false;
             rc = mParameters.stopAEBracket();
         } else if ((mParameters.isChromaFlashEnabled())
-                || (mFlashConfigured && !mLongshotEnabled)
+                || (mFlashNeeded && !mLongshotEnabled)
                 || (mParameters.getLowLightLevel() != CAM_LOW_LIGHT_OFF)
                 || (mParameters.getManualCaptureMode() >= CAM_MANUAL_CAPTURE_TYPE_2)) {
             rc = mParameters.resetFrameCapture(TRUE);
@@ -4017,7 +3992,6 @@ int32_t QCamera2HardwareInterface::configureAdvancedCapture()
         }
         rc = configureAEBracketing();
     } else if (mParameters.isStillMoreEnabled()) {
-        bSkipDisplay = false;
         rc = configureStillMore();
     } else if ((mParameters.isChromaFlashEnabled())
             || (mParameters.getLowLightLevel() != CAM_LOW_LIGHT_OFF)
@@ -4025,7 +3999,6 @@ int32_t QCamera2HardwareInterface::configureAdvancedCapture()
         rc = mParameters.configFrameCapture(TRUE);
     } else if (mFlashNeeded && !mLongshotEnabled) {
         rc = mParameters.configFrameCapture(TRUE);
-        mFlashConfigured = true;
         bSkipDisplay = false;
     } else {
         LOGH("Advanced Capture feature not enabled!! ");
@@ -4300,11 +4273,10 @@ int32_t QCamera2HardwareInterface::stopAdvancedCapture(
     if(mParameters.isUbiFocusEnabled() || mParameters.isUbiRefocus()) {
         rc = pChannel->stopAdvancedCapture(MM_CAMERA_AF_BRACKETING);
     } else if (mParameters.isChromaFlashEnabled()
-            || (mFlashConfigured && !mLongshotEnabled)
+            || (mFlashNeeded && !mLongshotEnabled)
             || (mParameters.getLowLightLevel() != CAM_LOW_LIGHT_OFF)
             || (mParameters.getManualCaptureMode() >= CAM_MANUAL_CAPTURE_TYPE_2)) {
         rc = pChannel->stopAdvancedCapture(MM_CAMERA_FRAME_CAPTURE);
-        mFlashConfigured = false;
     } else if(mParameters.isHDREnabled()
             || mParameters.isAEBracketEnabled()) {
         rc = pChannel->stopAdvancedCapture(MM_CAMERA_AE_BRACKETING);
@@ -5426,10 +5398,7 @@ int QCamera2HardwareInterface::takeLiveSnapshot_internal()
                     if (NULL != pStream) {
                         if (CAM_STREAM_TYPE_METADATA == pStream->getMyType()) {
                             pMetaStream = pStream;
-                        } else if ((CAM_STREAM_TYPE_PREVIEW == pStream->getMyType())
-                                && (!mParameters.isHfrMode())) {
-                            // Do not link preview stream for HFR live snapshot.
-                            // Thumbnail will not be derived from preview for HFR live snapshot.
+                        } else if (CAM_STREAM_TYPE_PREVIEW == pStream->getMyType()) {
                             pPreviewStream = pStream;
                         }
                     }
@@ -6753,7 +6722,7 @@ int32_t QCamera2HardwareInterface::addStreamToChannel(QCameraChannel *pChannel,
     } else {
         padding_info =
                 gCamCapability[mCameraId]->padding_info;
-        if (streamType == CAM_STREAM_TYPE_PREVIEW || streamType == CAM_STREAM_TYPE_POSTVIEW) {
+        if (streamType == CAM_STREAM_TYPE_PREVIEW) {
             padding_info.width_padding = mSurfaceStridePadding;
             padding_info.height_padding = CAM_PAD_TO_2;
         }
@@ -6843,10 +6812,6 @@ int32_t QCamera2HardwareInterface::addPreviewChannel()
         } else {
             rc = addStreamToChannel(pChannel, CAM_STREAM_TYPE_PREVIEW,
                                     preview_stream_cb_routine, this);
-#ifdef TARGET_TS_MAKEUP
-            int whiteLevel, cleanLevel;
-            if(mParameters.getTsMakeupInfo(whiteLevel, cleanLevel) == false)
-#endif
             pChannel->setStreamSyncCB(CAM_STREAM_TYPE_PREVIEW,
                     synchronous_stream_cb_routine);
         }
@@ -7164,10 +7129,6 @@ int32_t QCamera2HardwareInterface::addZSLChannel()
     } else {
         rc = addStreamToChannel(pChannel, CAM_STREAM_TYPE_PREVIEW,
                                 preview_stream_cb_routine, this);
-#ifdef TARGET_TS_MAKEUP
-        int whiteLevel, cleanLevel;
-        if(mParameters.getTsMakeupInfo(whiteLevel, cleanLevel) == false)
-#endif
         pChannel->setStreamSyncCB(CAM_STREAM_TYPE_PREVIEW,
                 synchronous_stream_cb_routine);
     }
@@ -7290,10 +7251,6 @@ int32_t QCamera2HardwareInterface::addCaptureChannel()
             LOGE("add preview stream failed, ret = %d", rc);
             return rc;
         }
-#ifdef TARGET_TS_MAKEUP
-        int whiteLevel, cleanLevel;
-        if(mParameters.getTsMakeupInfo(whiteLevel, cleanLevel) == false)
-#endif
         pChannel->setStreamSyncCB(CAM_STREAM_TYPE_PREVIEW,
                 synchronous_stream_cb_routine);
     }
@@ -10325,6 +10282,37 @@ bool QCamera2HardwareInterface::isLowPowerMode()
     bool isLowpower = mParameters.getRecordingHintValue() && enable
             && ((dim.width * dim.height) >= (2048 * 1080));
     return isLowpower;
+}
+
+/*===========================================================================
+ * FUNCTION   : getBootToMonoTimeOffset
+ *
+ * DESCRIPTION: Calculate offset that is used to convert from
+ *              clock domain of boot to monotonic
+ *
+ * PARAMETERS :
+ *   None
+ *
+ * RETURN     : clock offset between boottime and monotonic time.
+ *
+ *==========================================================================*/
+nsecs_t QCamera2HardwareInterface::getBootToMonoTimeOffset()
+{
+    // try three times to get the clock offset, choose the one
+    // with the minimum gap in measurements.
+    const int tries = 3;
+    nsecs_t bestGap, measured;
+    for (int i = 0; i < tries; ++i) {
+        const nsecs_t tmono = systemTime(SYSTEM_TIME_MONOTONIC);
+        const nsecs_t tbase = systemTime(SYSTEM_TIME_BOOTTIME);
+        const nsecs_t tmono2 = systemTime(SYSTEM_TIME_MONOTONIC);
+        const nsecs_t gap = tmono2 - tmono;
+        if (i == 0 || gap < bestGap) {
+            bestGap = gap;
+            measured = tbase - ((tmono + tmono2) >> 1);
+        }
+    }
+    return measured;
 }
 
 }; // namespace qcamera
