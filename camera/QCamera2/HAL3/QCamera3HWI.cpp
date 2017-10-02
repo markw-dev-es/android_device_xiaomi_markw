@@ -63,8 +63,6 @@ namespace qcamera {
 
 #define DATA_PTR(MEM_OBJ,INDEX) MEM_OBJ->getPtr( INDEX )
 
-#define TIME_SOURCE ANDROID_SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN
-
 #define EMPTY_PIPELINE_DELAY 2
 #define PARTIAL_RESULT_COUNT 2
 #define FRAME_SKIP_DELAY     0
@@ -366,9 +364,7 @@ QCamera3HardwareInterface::QCamera3HardwareInterface(uint32_t cameraId,
       mLdafCalibExist(false),
       mPowerHintEnabled(false),
       mLastCustIntentFrmNum(-1),
-      mState(CLOSED),
-      mBootToMonoTimestampOffset(0),
-      mUseAVTimer(false)
+      mState(CLOSED)
 {
     getLogLevel();
     m_perfLock.lock_init();
@@ -740,23 +736,6 @@ int QCamera3HardwareInterface::openCamera()
         }
         pthread_mutex_unlock(&gCamLock);
     }
-
-    // Setprop to decide the time source (whether boottime or monotonic).
-    // By default, use monotonic time.
-    property_get("persist.camera.time.monotonic", value, "1");
-    mBootToMonoTimestampOffset = 0;
-    if (atoi(value) == 1) {
-        // if monotonic is set, then need to use time in monotonic.
-        // So, Measure the clock offset between BOOTTIME and MONOTONIC
-        // The clock domain source for ISP is BOOTTIME and
-        // for display is MONOTONIC
-        // The below offset is used to convert from clock domain of other subsystem
-        // (hardware composer) to that of camera. Assumption is that this
-        // offset won't change during the life cycle of the camera device. In other
-        // words, camera device shouldn't be open during CPU suspend.
-        mBootToMonoTimestampOffset = QCameraCommon::getBootToMonoTimeOffset();
-    }
-    LOGH("mBootToMonoTimestampOffset = %lld", mBootToMonoTimestampOffset);
 
     return NO_ERROR;
 }
@@ -2757,12 +2736,6 @@ void QCamera3HardwareInterface::handleMetadataWithLock(
     int64_t capture_time;
     nsecs_t currentSysTime;
 
-    // Convert Boottime from camera to Monotime except for VT usecase where AVTimer is used.
-    uint8_t timestampSource = TIME_SOURCE;
-    nsecs_t timeOffset = mBootToMonoTimestampOffset;
-    if (mUseAVTimer || (ANDROID_SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN != timestampSource))
-        timeOffset = 0;
-
     int32_t *p_frame_number_valid =
             POINTER_OF_META(CAM_INTF_META_FRAME_NUMBER_VALID, metadata);
     uint32_t *p_frame_number = POINTER_OF_META(CAM_INTF_META_FRAME_NUMBER, metadata);
@@ -2788,7 +2761,7 @@ void QCamera3HardwareInterface::handleMetadataWithLock(
     }
     frame_number_valid =        *p_frame_number_valid;
     frame_number =              *p_frame_number;
-    capture_time =              *p_capture_time - timeOffset;
+    capture_time =              *p_capture_time;
     urgent_frame_number_valid = *p_urgent_frame_number_valid;
     urgent_frame_number =       *p_urgent_frame_number;
     currentSysTime =            systemTime(CLOCK_MONOTONIC);
@@ -3476,17 +3449,6 @@ int QCamera3HardwareInterface::processCaptureRequest(
         }
 
         setMobicat();
-
-        if (meta.exists(QCAMERA3_USE_AV_TIMER)) {
-            uint8_t* use_av_timer =
-                    meta.find(QCAMERA3_USE_AV_TIMER).data.u8;
-            if (ADD_SET_PARAM_ENTRY_TO_BATCH(mParameters,
-                    CAM_INTF_META_USE_AV_TIMER, *use_av_timer)) {
-                rc = BAD_VALUE;
-            } else {
-                mUseAVTimer = *use_av_timer;
-            }
-        }
 
         /* Set fps and hfr mode while sending meta stream info so that sensor
          * can configure appropriate streaming mode */
@@ -6408,7 +6370,7 @@ int QCamera3HardwareInterface::initStaticMetadata(uint32_t cameraId)
     staticInfo.update(ANDROID_TONEMAP_MAX_CURVE_POINTS,
             &gCamCapability[cameraId]->max_tone_map_curve_points, 1);
 
-    uint8_t timestampSource = TIME_SOURCE;
+    uint8_t timestampSource = ANDROID_SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
     staticInfo.update(ANDROID_SENSOR_INFO_TIMESTAMP_SOURCE,
             &timestampSource, 1);
 
@@ -9121,6 +9083,14 @@ int QCamera3HardwareInterface::translateToHalMetadata
         }
     }
 
+    if (frame_settings.exists(QCAMERA3_USE_AV_TIMER)) {
+        uint8_t* use_av_timer =
+                frame_settings.find(QCAMERA3_USE_AV_TIMER).data.u8;
+        if (ADD_SET_PARAM_ENTRY_TO_BATCH(hal_metadata, CAM_INTF_META_USE_AV_TIMER, *use_av_timer)) {
+            rc = BAD_VALUE;
+        }
+    }
+
     // EV step
     if (ADD_SET_PARAM_ENTRY_TO_BATCH(hal_metadata, CAM_INTF_PARM_EV_STEP,
             gCamCapability[mCameraId]->exp_compensation_step)) {
@@ -10076,10 +10046,9 @@ int32_t QCamera3HardwareInterface::notifyErrorForPendingRequests()
         } else {
 
             // Go through the pending requests info and send error request to framework
-            LOGE("Sending ERROR REQUEST for all pending requests");
             pendingRequestIterator i = mPendingRequestsList.begin(); //make sure i is at the beginning
 
-            LOGE("Sending ERROR REQUEST for frame %d", req->frame_number);
+            LOGH("Sending ERROR REQUEST for frame %d", req->frame_number);
 
             // Send error notify to frameworks
             camera3_notify_msg_t notify_msg;
@@ -10272,8 +10241,8 @@ void QCamera3HardwareInterface::setPAAFSupport(
     case CAM_FILTER_ARRANGEMENT_GRBG:
     case CAM_FILTER_ARRANGEMENT_GBRG:
     case CAM_FILTER_ARRANGEMENT_BGGR:
-        if ((stream_type == CAM_STREAM_TYPE_PREVIEW) ||
-                (stream_type == CAM_STREAM_TYPE_ANALYSIS) ||
+        if ((stream_type == CAM_STREAM_TYPE_CALLBACK) ||
+                (stream_type == CAM_STREAM_TYPE_PREVIEW) ||
                 (stream_type == CAM_STREAM_TYPE_VIDEO)) {
             feature_mask |= CAM_QCOM_FEATURE_PAAF;
         }

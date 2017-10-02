@@ -4,9 +4,6 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-#for kernel headers
-LOCAL_CFLAGS := -DCONFIG_MACH_XIAOMI_MARKW
-
 LOCAL_SRC_FILES := \
         util/QCameraBufferMaps.cpp \
         util/QCameraCmdThread.cpp \
@@ -52,11 +49,6 @@ LOCAL_CFLAGS += -DHAS_MULTIMEDIA_HINTS -D_ANDROID
 
 ifeq ($(TARGET_USES_AOSP),true)
 LOCAL_CFLAGS += -DVANILLA_HAL
-endif
-
-#use media extension
-ifeq ($(TARGET_USES_MEDIA_EXTENSIONS), true)
-LOCAL_CFLAGS += -DUSE_MEDIA_EXTENSIONS
 endif
 
 #HAL 1.0 Flags
@@ -109,6 +101,7 @@ ifeq ($(TARGET_TS_MAKEUP),true)
 LOCAL_SHARED_LIBRARIES += libts_face_beautify_hal libts_detected_face_hal
 endif
 
+LOCAL_CLANG := false
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_TAGS := optional
@@ -117,4 +110,5 @@ LOCAL_32_BIT_ONLY := $(BOARD_QTI_CAMERA_32BIT_ONLY)
 include $(BUILD_SHARED_LIBRARY)
 
 include $(call first-makefiles-under,$(LOCAL_PATH))
+
 endif
