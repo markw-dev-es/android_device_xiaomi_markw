@@ -59,8 +59,11 @@ bluetooth.hfp.client=1
 qcom.bluetooth.soc=smd
 
 # Camera
-persist.camera.HAL3.enabled=1
 camera.hal1.packagelist=com.skype.raider,com.google.android.talk,org.cyanogenmod.snap
+persist.camera.HAL3.enabled=0
+persist.camera.time.monotonic=0
+persist.camera.isp.clock.optmz=0
+vidc.enc.dcvs.extra-buff-count=2
 media.camera.ts.monotonic=0
 vidc.dec.downscalar_height=1088
 vidc.dec.downscalar_width=1920
