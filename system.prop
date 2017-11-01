@@ -165,6 +165,8 @@ persist.radio.NO_STAPA=1
 persist.radio.VT_HYBRID_ENABLE=1
 telephony.lteOnCdmaDevice=1
 ro.telephony.ril_class=MarkwRIL
+ril.ecclist=000,08,100,101,102,110,112,118,119,120,122,911,999
+ril.ecclist1=000,08,100,101,102,110,112,118,119,120,122,911,999
 
 # Perf
 ro.vendor.extension_library=libqti-perfd-client.so
