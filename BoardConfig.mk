@@ -64,6 +64,9 @@ BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 TARGET_KERNEL_CONFIG := markw_defconfig
 TARGET_KERNEL_SOURCE := kernel/xiaomi/markw
 USE_CLANG_PLATFORM_BUILD := true
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-gnu-
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/linaro-7.1/bin
+
 
 # ANT+
 BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
