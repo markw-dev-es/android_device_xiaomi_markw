@@ -127,10 +127,6 @@ PRODUCT_PACKAGES += \
     camera.msm8953 \
     libmm-qcamera 
 
-# DASH technology
-PRODUCT_PACKAGES += \
-    libdashplayer
-
 # CNE
 PRODUCT_PACKAGES += \
     libcnefeatureconfig
