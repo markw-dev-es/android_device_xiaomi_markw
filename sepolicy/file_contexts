@@ -22,3 +22,5 @@
 # Fp Libs
 /system/lib64/libfpnav\.so			u:object_r:system_file:s0
 /system/lib64/libfpservice\.so			u:object_r:system_file:s0
+
+/system/bin/ptt_socket_app                      u:object_r:wcnss_service_exec:s0
