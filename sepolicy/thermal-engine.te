@@ -1,1 +1,2 @@
 allow thermal-engine system_data_file:dir { write add_name remove_name };
+allow thermal-engine system_data_file:file { write open create unlink };
