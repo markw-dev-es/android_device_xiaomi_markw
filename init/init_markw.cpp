@@ -41,6 +41,10 @@
 
 using android::base::Trim;
 
+char const *heapstartsize;
+char const *heapgrowthlimit;
+char const *heapsize;
+
 char const *heapminfree;
 char const *heapmaxfree;
 char const *large_cache_height;
