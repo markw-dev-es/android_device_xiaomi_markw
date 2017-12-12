@@ -103,6 +103,9 @@ ro.sf.lcd_density=475
 # Fingerprint
 persist.qfp=false
 
+# Fm
+ro.fm.transmitter=false
+
 # FRP
 ro.frp.pst=/dev/block/bootdevice/by-name/config
 
