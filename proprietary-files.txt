@@ -1,6 +1,7 @@
 # Audio
 etc/drc/drc_cfg_5.1.txt
 etc/drc/drc_cfg_AZ.txt
+etc/init/camerasercer.rc
 etc/surround_sound_3mic/surround_sound_rec_5.1.cfg
 etc/surround_sound_3mic/surround_sound_rec_AZ.cfg
 lib/hw/audio.primary.msm8953.so
@@ -49,6 +50,8 @@ etc/acdbdata/MTP/MTP_Speaker_cal.acdb
 
 # Camera configs
 bin/mm-qcamera-daemon
+bin/cameraserver
+etc/init/camerasercer.rc
 etc/camera/csidtg_camera.xml
 etc/camera/csidtg_chromatix.xml
 etc/camera/msm8953_camera.xml
@@ -63,6 +66,7 @@ etc/camera/s5k3l8_mono_chromatix.xml
 etc/camera/s5k4h8_chromatix.xml
 etc/camera/s5k5e8_chromatix.xml
 etc/camera/sunny_s5k3l8_f3l8yam_chromatix.xml
+etc/init/camerasercer.rc
 
 # Camera
 bin/mm-qcamera-daemon
