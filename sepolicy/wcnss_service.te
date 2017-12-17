@@ -1,1 +1,4 @@
 allow wcnss_service wcnss_service:capability { chown setgid setuid };
+allow wcnss_service wcnss_service:dir getattr;
+allow wcnss_service wcnss_service_exec:file { read open };
+allow wcnss_service hostapd_exec:file { read open };

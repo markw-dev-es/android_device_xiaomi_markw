@@ -1,0 +1,3 @@
+allow ims ims:dir getattr;
+allow ims ims_exec:file { read open };
+allow ims imscm_exec:file { read open };

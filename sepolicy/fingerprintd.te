@@ -17,3 +17,8 @@ allow fingerprintd mnt_user_file:dir search;
 allow fingerprintd mnt_user_file:lnk_file read;
 allow fingerprintd fuse:dir search;
 allow fingerprintd fuse:file { getattr append open };
+allow fingerprintd fingerprintd_exec:file { read open };
+allow fingerprintd fingerprintd:dir getattr;
+allow fingerprintd fingerprintd:binder call;
+allow init fingerprintd:binder call;
+allow init fingerprintd:netlink_socket read;
