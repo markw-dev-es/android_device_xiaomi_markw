@@ -58,3 +58,4 @@ allow untrusted_app keystore_exec:file read;
 allow untrusted_app sensors_data_file:dir { read open };
 allow untrusted_app tombstone_data_file:dir getattr;
 allow untrusted_app rootfs:dir { read open };
+allow untrusted_app sysfs:dir read;
