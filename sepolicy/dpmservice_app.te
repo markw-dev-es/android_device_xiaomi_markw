@@ -3,5 +3,3 @@ app_domain(dpmservice_app)
 allow dpmservice_app untrusted_app:file { read getattr };
 allow dpmservice_app platform_app:file { read getattr };
 allow dpmservice_app dpmservice_app:dir getattr;
-allow dpmservice_app dpmd:dir getattr;
-allow dpmservice_app dpmd_exec:file { read open };
