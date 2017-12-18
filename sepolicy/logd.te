@@ -1,3 +1,7 @@
 allow logd logd:lnk_file read;
 allow logd logd:dir getattr;
 allow logd logd:dir getattr;
+allow logd debuggerd:dir getattr;
+allow logd debuggerd_exec:file { read open };
+allow logd dumpstate_exec:file { read open };
+allow logd tombstone_data_file:dir getattr;

@@ -1,0 +1,2 @@
+allow sysfs sysfs:file write;
+allow sysfs sysfs:dir read;
