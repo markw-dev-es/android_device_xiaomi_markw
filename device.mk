@@ -122,9 +122,9 @@ PRODUCT_COPY_FILES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    SnapdragonCamera
-#    camera.msm8953 \
-#    libmm-qcamera \
+    SnapdragonCamera2
+    camera.msm8953 
+    libmm-qcamera 
 
 # DASH technology
 PRODUCT_PACKAGES += \
