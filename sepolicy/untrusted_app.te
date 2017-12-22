@@ -27,7 +27,7 @@ allow untrusted_app netmgrd:dir getattr;
 allow untrusted_app qti:dir getattr;
 allow untrusted_app hvdcp:dir getattr;
 allow untrusted_app hvdcp_exec:file { read open };
-allow untrusted_app perfprofd:dir getattr;
+#allow untrusted_app perfprofd:dir getattr;
 allow untrusted_app dpmd:dir getattr;
 allow untrusted_app qseeproxy:dir getattr;
 allow untrusted_app blkid_exec:file { read open };

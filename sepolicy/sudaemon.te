@@ -7,4 +7,4 @@ allow sudaemon recovery_prop:file { open getattr };
 allow sudaemon adbtcp_prop:file { open getattr };
 allow sudaemon sys_usb_tethering_prop:file { open getattr };
 allow sudaemon sudaemon:dir getattr;
-allow sudaemon su:dir getattr;
+#allow sudaemon su:dir getattr;
