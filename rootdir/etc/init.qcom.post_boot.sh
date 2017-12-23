@@ -223,7 +223,7 @@ case "$target" in
                     done
                     for cpu_mbps_zones in /sys/class/devfreq/soc:qcom,cpubw/bw_hwmon/mbps_zones
                     do
-                        echo "1611 3221 5126 5859 6445 7104" > $cpu_mbps_zones
+                        echo "1611 3221 5859 6445 7104" > $cpu_mbps_zones
                     done
                     for cpu_sample_ms in /sys/class/devfreq/soc:qcom,cpubw/bw_hwmon/sample_ms
                     do
@@ -244,28 +244,28 @@ case "$target" in
                     echo 40 > $gpu_bimc_io_percent
                 done
 
-            		# Configure DCC module to capture critical register contents when device crashes
-            		for DCC_PATH in /sys/bus/platform/devices/*.dcc*
-            		do
-            			echo  0 > $DCC_PATH/enable
-            			echo cap >  $DCC_PATH/func_type
-            			echo sram > $DCC_PATH/data_sink
-            			echo  1 > $DCC_PATH/config_reset
+		# Configure DCC module to capture critical register contents when device crashes
+		for DCC_PATH in /sys/bus/platform/devices/*.dcc*
+		do
+			echo  0 > $DCC_PATH/enable
+			echo cap >  $DCC_PATH/func_type
+			echo sram > $DCC_PATH/data_sink
+			echo  1 > $DCC_PATH/config_reset
 
-            			# Register specifies APC CPR closed-loop settled voltage for current voltage corner
-            			echo 0xb1d2c18 1 > $DCC_PATH/config
+			# Register specifies APC CPR closed-loop settled voltage for current voltage corner
+			echo 0xb1d2c18 1 > $DCC_PATH/config
 
-            			# Register specifies SW programmed open-loop voltage for current voltage corner
-            			echo 0xb1d2900 1 > $DCC_PATH/config
+			# Register specifies SW programmed open-loop voltage for current voltage corner
+			echo 0xb1d2900 1 > $DCC_PATH/config
 
-            			# Register specifies APM switch settings and APM FSM state
-            			echo 0xb1112b0 1 > $DCC_PATH/config
+			# Register specifies APM switch settings and APM FSM state
+			echo 0xb1112b0 1 > $DCC_PATH/config
 
-            			# Register specifies CPR mode change state and also #online cores input to CPR HW
-            			echo 0xb018798 1 > $DCC_PATH/config
+			# Register specifies CPR mode change state and also #online cores input to CPR HW
+			echo 0xb018798 1 > $DCC_PATH/config
 
-            			echo  1 > $DCC_PATH/enable
-            		done
+			echo  1 > $DCC_PATH/enable
+		done
 
                 # disable thermal & BCL core_control to update interactive gov settings
                 echo 0 > /sys/module/msm_thermal/core_control/enabled
@@ -288,30 +288,53 @@ case "$target" in
                     echo -n enable > $mode
                 done
 
+                # Boeffla generic wakelock blocker
+                echo "IPA_WS;wlan_extscan_wl;qcom_rx_wakelock;wlan;[timerfd];alarmtimer;bq_delt_soc_wake_lock;NETLINK;wlan_wd_wake;wlan_rx_wake;wlan_ctrl_wake;wlan_wake;bluedroid_timer;bluesleep" > /sys/class/misc/boeffla_wakelock_blocker/wakelock_blocker
                 for freq in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq
                 do
-                  echo 2016000 > $freq
+                  echo 2208000 > $freq
                 done
 
-                #governor settings
-                echo 1 > /sys/devices/system/cpu/cpu0/online
+                # Switch TCP congestion control to westwood
+                echo westwood > /proc/sys/net/ipv4/tcp_congestion_control
+                for freq in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq
+                do
+                  echo 307000 > $freq
+                done
+
+                # Governor settings
+                #echo 1 > /sys/devices/system/cpu/cpu0/online
+                #echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+                #echo "20000 1036800:40000" > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+                #echo 95 > /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+                #echo 1209600 > /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+                #echo 0 > /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
+                #echo 40000 > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+                #echo 652800 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+                #echo 652800 > /sys/devices/system/cpu/cpufreq/interactive/screen_off_maxfreq
                 echo "impulse" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-                echo "19000 1401600:29000" > /sys/devices/system/cpu/cpufreq/impulse/above_hispeed_delay
-                echo 99 > /sys/devices/system/cpu/cpufreq/impulse/go_hispeed_load
+                echo "20000 1036800:30000" > /sys/devices/system/cpu/cpufreq/impulse/above_hispeed_delay
+                echo 95 > /sys/devices/system/cpu/cpufreq/impulse/go_hispeed_load
                 echo 20000 > /sys/devices/system/cpu/cpufreq/impulse/timer_rate
-                echo 1401600 > /sys/devices/system/cpu/cpufreq/impulse/hispeed_freq
+                echo 1209600 > /sys/devices/system/cpu/cpufreq/impulse/hispeed_freq
                 echo 0 > /sys/devices/system/cpu/cpufreq/impulse/io_is_busy
-                echo "85 1401600:80" > /sys/devices/system/cpu/cpufreq/impulse/target_loads
-                echo 29000 > /sys/devices/system/cpu/cpufreq/impulse/min_sample_time
-                echo 10 > /sys/devices/system/cpu/cpufreq/impulse/go_lowspeed_load
+                echo 30000 > /sys/devices/system/cpu/cpufreq/impulse/min_sample_time
+                echo 652800 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+                echo 652800 > /sys/devices/system/cpu/cpufreq/impulse/screen_off_maxfreq
 
 
                 echo 1 > /sys/devices/system/cpu/cpufreq/impulse/use_sched_load
                 echo 1 > /sys/devices/system/cpu/cpufreq/impulse/use_migration_notif
 
-                echo "1401600 1401600" > /sys/kernel/cpu_input_boost/ib_freqs
-                echo 500 > /sys/kernel/cpu_input_boost/ib_duration_ms
-                echo 1 > /sys/kernel/cpu_input_boost/enabled
+                ### CPU_Boost
+                echo 0 > /sys/module/cpu_boost/parameters/input_boost_enabled
+                echo "0:1036800 1:1036800 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/module/cpu_boost/parameters/input_boost_freq
+                echo 0 > /sys/module/cpu_boost/parameters/boost_ms
+                echo 40 > /sys/module/cpu_boost/parameters/input_boost_ms
+                echo 15 > /sys/module/cpu_boost/parameters/migration_load_threshold
+                echo 0 > /sys/module/cpu_boost/parameters/sync_threshold
+                echo N > /sys/module/cpu_boost/parameters/load_based_syncs
+                echo N > /sys/module/cpu_boost/parameters/shed_boost_on_input
 
                 # re-enable thermal & BCL core_control now
                 echo 1 > /sys/module/msm_thermal/core_control/enabled
