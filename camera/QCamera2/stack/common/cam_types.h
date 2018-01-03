@@ -1423,7 +1423,7 @@ typedef struct {
 typedef struct {
   cam_auto_scene_t      detected_scene;
   uint8_t               max_n_scenes;
-  cam_asd_scene_info_t  scene_info[S_MAX+48];
+  cam_asd_scene_info_t  scene_info[S_MAX];
 } cam_asd_decision_t;
 
 
