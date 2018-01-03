@@ -4,6 +4,9 @@ LOCAL_PATH := $(call my-dir)
 include $(LOCAL_PATH)/../../../common.mk
 include $(CLEAR_VARS)
 
+#for kernel headers
+LOCAL_CFLAGS := -DCONFIG_MACH_XIAOMI_MARKW
+
 MM_CAM_FILES := \
         src/mm_camera_interface.c \
         src/mm_camera.c \
