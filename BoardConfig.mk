@@ -131,7 +131,7 @@ QCOM_BT_READ_ADDR_FROM_PROP := true
 # 32-bit or 64-bit), the following line should be deleted
 BOARD_QTI_CAMERA_32BIT_ONLY := true
 TARGET_TS_MAKEUP := true
-TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+#TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 USE_DEVICE_SPECIFIC_CAMERA := true
 # for kernel headers
 BOARD_GLOBAL_CFLAGS += -DCONFIG_MACH_XIAOMI_MARKW

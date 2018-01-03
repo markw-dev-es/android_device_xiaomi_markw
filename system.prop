@@ -60,7 +60,7 @@ qcom.bluetooth.soc=smd
 
 # Camera
 camera.hal1.packagelist=com.skype.raider,com.google.android.talk,org.cyanogenmod.snap
-persist.camera.HAL3.enabled=0
+persist.camera.HAL3.enabled=1
 persist.camera.time.monotonic=0
 persist.camera.isp.clock.optmz=0
 vidc.enc.dcvs.extra-buff-count=2
@@ -71,8 +71,14 @@ vidc.enc.dcvs.extra-buff-count=2
 vidc.enc.disable_bframes=1
 vidc.disable.split.mode=1
 vidc.enc.disable.pq=true
-#media.stagefright.legacyencoder=true
-#media.stagefright.less-secure=true
+camera.display.umax=1920x1080
+camera.display.lmax=1280x720
+persist.camera.stats.test=5
+persist.camera.feature.cac=1
+persist.camera.imglib.cac3=2
+camera.lowpower.record.enable=1
+persist.camera.gyro.disable=0
+persist.capture.burst.exposures=-5,0,5
 
 # CNE
 persist.cne.feature=1
