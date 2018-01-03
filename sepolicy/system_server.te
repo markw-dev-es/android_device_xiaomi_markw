@@ -2,4 +2,3 @@ allow system_server lirc_device:chr_file rw_file_perms;
 allow system_server proc:file write;
 allow system_server diag_device:chr_file { ioctl open read write };
 allow system_server kernel:system syslog_read;
-allow system_server vfat:file read;
