@@ -20,7 +20,6 @@ LOCAL_PATH := device/xiaomi/markw
 
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
-USE_NINJA := false
 
 # Deodex
 DISABLE_DEXPREOPT := true
@@ -66,8 +65,8 @@ BOARD_RAMDISK_OFFSET := 0x01000000
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 TARGET_KERNEL_CONFIG := markw_defconfig
 TARGET_KERNEL_SOURCE := kernel/xiaomi/markw
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-gnu-
-KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-gnu/bin
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linaro-linux-android-
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/gcc-prebuilts/bin
 USE_CLANG_PLATFORM_BUILD := true
 
 # ANT+
