@@ -4,8 +4,8 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-#for kernel headers
-LOCAL_CFLAGS := -DCONFIG_MACH_XIAOMI_MARKW
+LOCAL_COPY_HEADERS_TO := qcom/camera
+LOCAL_COPY_HEADERS := QCameraFormat.h
 
 LOCAL_SRC_FILES := \
         util/QCameraBufferMaps.cpp \
