@@ -1,0 +1,4 @@
+allow ims ims:dir getattr;
+allow ims ims_exec:file { read open };
+allow ims imscm_exec:file { read open };
+allow ims diag_device:chr_file { ioctl open read write };

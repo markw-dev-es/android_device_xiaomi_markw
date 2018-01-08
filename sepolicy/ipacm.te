@@ -1,0 +1,4 @@
+allow ipacm ipacm-diag:dir getattr;
+allow ipacm ipacm:dir getattr;
+allow ipacm ipacm_exec:file { read open };
+allow ipacm ipacm-diag_exec:file { read open };

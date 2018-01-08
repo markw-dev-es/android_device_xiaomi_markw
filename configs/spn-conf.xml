@@ -114,6 +114,7 @@
   <spnOverride numeric="25704"  spn="life:)" />
   <spnOverride numeric="25702"  spn="MTS" />
   <spnOverride numeric="25701"  spn="Velcom" />
+  <spnOverride numeric="25706"  spn="beCloud" />
   <!-- Belgium -->
   <spnOverride numeric="20620"  spn="BASE" />
   <spnOverride numeric="20610"  spn="Mobistar" />

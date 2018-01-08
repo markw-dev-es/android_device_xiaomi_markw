@@ -290,19 +290,14 @@ case "$target" in
 
                 for freq in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq
                 do
-                  echo 2208000 > $freq
-                done
-
-                for freq in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq
-                do
-                  echo 307000 > $freq
+                  echo 2016000 > $freq
                 done
 
                 #governor settings
                 echo 1 > /sys/devices/system/cpu/cpu0/online
                 echo "impulse" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
                 echo "19000 1401600:29000" > /sys/devices/system/cpu/cpufreq/impulse/above_hispeed_delay
-                echo 95 > /sys/devices/system/cpu/cpufreq/impulse/go_hispeed_load
+                echo 99 > /sys/devices/system/cpu/cpufreq/impulse/go_hispeed_load
                 echo 20000 > /sys/devices/system/cpu/cpufreq/impulse/timer_rate
                 echo 1401600 > /sys/devices/system/cpu/cpufreq/impulse/hispeed_freq
                 echo 0 > /sys/devices/system/cpu/cpufreq/impulse/io_is_busy
@@ -313,6 +308,10 @@ case "$target" in
 
                 echo 1 > /sys/devices/system/cpu/cpufreq/impulse/use_sched_load
                 echo 1 > /sys/devices/system/cpu/cpufreq/impulse/use_migration_notif
+
+                echo "1401600 1401600" > /sys/kernel/cpu_input_boost/ib_freqs
+                echo 500 > /sys/kernel/cpu_input_boost/ib_duration_ms
+                echo 1 > /sys/kernel/cpu_input_boost/enabled
 
                 # re-enable thermal & BCL core_control now
                 echo 1 > /sys/module/msm_thermal/core_control/enabled

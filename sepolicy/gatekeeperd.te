@@ -1,0 +1,2 @@
+allow gatekeeperd gatekeeperd:dir getattr;
+allow gatekeeperd gatekeeperd_exec:file { read open };

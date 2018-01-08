@@ -40,9 +40,7 @@ allow gx_fpd self:netlink_socket create_socket_perms;
 
 #allow read/write property
 set_prop(gx_fpd, system_prop)
-
 allow gx_fpd gx_fpd_service:service_manager { add find };
-
 allow gx_fpd fingerprintd:binder { transfer call };
 allow gx_fpd firmware_file:dir search;
 allow gx_fpd firmware_file:file { read getattr open };
@@ -54,3 +52,4 @@ allow gx_fpd self:capability dac_override;
 allow gx_fpd storage_file:dir search;
 allow gx_fpd storage_file:lnk_file read;
 allow gx_fpd tmpfs:dir search;
+allow gx_fpd gx_fpd_device:chr_file { read ioctl };

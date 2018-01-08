@@ -20,8 +20,6 @@ LOCAL_PATH := device/xiaomi/markw
 
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
-USE_NINJA := false
-
 # Deodex
 DISABLE_DEXPREOPT := true
 
@@ -53,9 +51,6 @@ TARGET_USES_64_BIT_BINDER := true
 TARGET_BOOTLOADER_BOARD_NAME := MSM8953
 TARGET_NO_BOOTLOADER := true
 
-#Use SnapdragonCamera 2
-BOARD_USES_SNAPDRAGONCAMERA_VERSION := 2
-
 # Kernel
 BOARD_KERNEL_BASE := 0x80000000
 BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 no_console_suspend=1
@@ -66,8 +61,8 @@ BOARD_RAMDISK_OFFSET := 0x01000000
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 TARGET_KERNEL_CONFIG := markw_defconfig
 TARGET_KERNEL_SOURCE := kernel/xiaomi/markw
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-gnu-
-KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-gnu/bin
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linaro-linux-android-
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/gcc-prebuilts/bin
 USE_CLANG_PLATFORM_BUILD := true
 
 # ANT+
@@ -105,7 +100,7 @@ AUDIO_FEATURE_ENABLED_VBAT_MONITOR := true
 #AUDIO_FEATURE_ENABLED_VOICE_CONCURRENCY := true
 AUDIO_FEATURE_ENABLED_VORBIS_OFFLOAD := true
 AUDIO_FEATURE_ENABLED_WMA_OFFLOAD  := true
-AUDIO_FEATURE_ENABLED_EXT_AMPLIFIER := false
+AUDIO_FEATURE_ENABLED_EXT_AMPLIFIER := true
 TARGET_USES_QCOM_MM_AUDIO := true
 
 AUDIO_USE_LL_AS_PRIMARY_OUTPUT := true
@@ -131,8 +126,10 @@ QCOM_BT_READ_ADDR_FROM_PROP := true
 # 32-bit or 64-bit), the following line should be deleted
 BOARD_QTI_CAMERA_32BIT_ONLY := true
 TARGET_TS_MAKEUP := true
-TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+#TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 USE_DEVICE_SPECIFIC_CAMERA := true
+# for kernel headers
+BOARD_GLOBAL_CFLAGS += -DCONFIG_MACH_XIAOMI_MARKW
 
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
@@ -252,6 +249,9 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_qcwcn
 WIFI_DRIVER_FW_PATH_AP := "ap"
 WIFI_DRIVER_FW_PATH_STA := "sta"
 WPA_SUPPLICANT_VERSION := VER_0_8_X
+
+# Enable workaround for HWC vsync issue
+TARGET_HAS_HH_VSYNC_ISSUE := true
 
 # Inherit from the proprietary version
 -include vendor/xiaomi/markw/BoardConfigVendor.mk
