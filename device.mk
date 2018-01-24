@@ -127,6 +127,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libcnefeatureconfig
 
+# Consumerir
+PRODUCT_PACKAGES += \
+    consumerir.msm8953
+
+
 # Display
 PRODUCT_PACKAGES += \
     gralloc.msm8953 \
@@ -140,6 +145,10 @@ PRODUCT_PACKAGES += \
 # Display Livedisplay
 PRODUCT_PACKAGES += \
     libjni_livedisplay
+
+# Doze mode
+PRODUCT_PACKAGES += \
+    XiaomiDoze
 
 # DPM
 PRODUCT_BOOT_JARS += \
@@ -158,7 +167,8 @@ PRODUCT_PACKAGES += \
 
 # Fingerprint
 PRODUCT_PACKAGES += \
-     fingerprintd
+     fingerprintd \
+     XiaomiPocketMode
 
 # Fs_config
 PRODUCT_PACKAGES += \

@@ -190,6 +190,8 @@ on boot
     chmod 0660 /sys/devices/soc/soc:fpc1020/wakeup_enable
     chown system system /sys/devices/soc/soc:fpc1020/wakeup_enable
     chmod 0660 /sys/devices/soc/soc:fpc1020/wakeup_enable
+    chown system system /sys/devices/soc/soc:fpc_fpc1020/proximity_state
+ 
 
     setprop persist.sys.fp.vendor none
     start gx_fpd
