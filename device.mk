@@ -128,7 +128,7 @@ PRODUCT_PACKAGES += \
     libcnefeatureconfig
 
 # Consumerir
-PRODUCT_PACKAGES += \
+#PRODUCT_PACKAGES += \
     consumerir.msm8953
 
 
@@ -147,7 +147,7 @@ PRODUCT_PACKAGES += \
     libjni_livedisplay
 
 # Doze mode
-PRODUCT_PACKAGES += \
+#PRODUCT_PACKAGES += \
     XiaomiDoze
 
 # DPM
@@ -300,6 +300,10 @@ PRODUCT_COPY_FILES += \
 # Thermal
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/thermal-engine.conf:system/etc/thermal-engine.conf
+
+# Device Settings
+PRODUCT_PACKAGES += \
+    XiaomiParts
 
 # WiFi
 PRODUCT_PACKAGES += \

@@ -20,7 +20,6 @@ LOCAL_PATH := device/xiaomi/markw
 
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
-
 # Deodex
 DISABLE_DEXPREOPT := true
 
