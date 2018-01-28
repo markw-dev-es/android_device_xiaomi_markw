@@ -61,8 +61,8 @@ BOARD_RAMDISK_OFFSET := 0x01000000
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 TARGET_KERNEL_CONFIG := markw_defconfig
 TARGET_KERNEL_SOURCE := kernel/V7
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linaro-linux-android-
-KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/gcc-prebuilts/bin
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-gnu-
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/gcc-prebuilts/gcc-linaro-7.2.1-2017.11-i686_aarch64-linux-gnu/bin
 USE_CLANG_PLATFORM_BUILD := true
 
 # ANT+

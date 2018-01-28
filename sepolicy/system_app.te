@@ -2,6 +2,3 @@ allow system_app gx_fpd:binder call;
 allow system_app system_app:dir getattr;
 allow system_app system_app_data_file:dir search;
 dontaudit system_app netd_service:service_manager find;
-
-# Allow PocketMode to work
-allow system_app sysfs_fpc_proximity:file rw_file_perms;
